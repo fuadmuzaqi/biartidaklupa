@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Catatan Peristiwa Penting</title>
+  <style>
+    :root { --bg:#0b1020; --card:#111a33; --text:#e8eeff; --muted:#a7b3dd; --accent:#6aa6ff; --danger:#ff5d6c; --ok:#45d483; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background: linear-gradient(180deg,#070a15, var(--bg)); color: var(--text); }
+    .wrap { max-width: 920px; margin: 0 auto; padding: 18px; }
+    header { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+    h1 { font-size: 18px; margin: 8px 0; }
+    .card { background: rgba(17,26,51,.92); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 14px; }
+    .grid { display:grid; gap: 12px; }
+    @media (min-width: 720px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
+    label { display:block; font-size: 12px; color: var(--muted); margin-bottom:6px; }
+    input, select, textarea {
+      width:100%; padding: 10px 11px; border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(8,12,26,.85); color: var(--text);
+      outline: none;
+    }
+    textarea { min-height: 110px; resize: vertical; }
+    .row { display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
+    button {
+      appearance:none; border:0; cursor:pointer;
+      padding: 10px 12px; border-radius: 12px;
+      background: var(--accent); color: #071022; font-weight: 700;
+    }
+    button.secondary { background: rgba(255,255,255,.10); color: var(--text); font-weight:600; border:1px solid rgba(255,255,255,.12); }
+    button.danger { background: var(--danger); color: #20050a; }
+    .hint { color: var(--muted); font-size: 12px; }
+    .list { display:grid; gap: 10px; margin-top: 12px; }
+    .item { padding: 12px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
+    .item-top { display:flex; justify-content:space-between; gap: 10px; align-items:flex-start; }
+    .meta { font-size: 12px; color: var(--muted); }
+    .content { white-space: pre-wrap; line-height: 1.35; margin-top: 8px; }
+    .badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); color: var(--text); }
+    .status { font-size: 12px; }
+    .status.ok { color: var(--ok); }
+    .status.err { color: var(--danger); }
+    .hidden { display:none !important; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Catatan Peristiwa Penting (Fuad/Eli)</h1>
+      <div class="row">
+        <span id="count" class="badge">0/50</span>
+        <button id="logoutBtn" class="secondary hidden" type="button">Keluar</button>
+      </div>
+    </header>
+
+    <section id="loginCard" class="card grid">
+      <div>
+        <label>Kode akses</label>
+        <input id="accessCode" placeholder="Masukkan kode akses" autocomplete="off" />
+        <div class="hint">Kode dicek di server (env ACCESS_CODE).</div>
+      </div>
+      <div class="row">
+        <button id="loginBtn" type="button">Masuk</button>
+        <span id="loginStatus" class="status"></span>
+      </div>
+    </section>
+
+    <section id="app" class="grid hidden" style="margin-top: 12px;">
+      <div class="card grid grid-2">
+        <div>
+          <label>Pilih nama</label>
+          <select id="person">
+            <option value="Fuad">Fuad</option>
+            <option value="Eli">Eli</option>
+          </select>
+        </div>
+        <div>
+          <label>Tanggal</label>
+          <input id="date" type="date" />
+        </div>
+        <div style="grid-column:1/-1;">
+          <label>Isi catatan</label>
+          <textarea id="content" placeholder="Tulis peristiwa penting..."></textarea>
+        </div>
+        <div class="row" style="grid-column:1/-1;">
+          <button id="saveBtn" type="button">Simpan</button>
+          <button id="cancelEditBtn" class="secondary hidden" type="button">Batal edit</button>
+          <span id="saveStatus" class="status"></span>
+        </div>
+        <div class="hint" style="grid-column:1/-1;">
+          Tips: klik "Edit" di item untuk mengubah. Maksimal 50 note.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content: space-between;">
+          <div class="hint">Daftar catatan (terbaru di atas)</div>
+          <button id="refreshBtn" class="secondary" type="button">Refresh</button>
+        </div>
+        <div id="list" class="list"></div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+
+    let editingId = null;
+    let sessionToken = localStorage.getItem("sessionToken") || "";
+
+    function setStatus(el, text, kind) {
+      el.textContent = text || "";
+      el.classList.remove("ok", "err");
+      if (kind) el.classList.add(kind);
+    }
+
+    function showApp(isAuthed) {
+      $("loginCard").classList.toggle("hidden", isAuthed);
+      $("app").classList.toggle("hidden", !isAuthed);
+      $("logoutBtn").classList.toggle("hidden", !isAuthed);
+    }
+
+    async function api(path, opts = {}) {
+      const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
+      if (sessionToken) headers["Authorization"] = "Bearer " + sessionToken;
+      const res = await fetch(path, Object.assign({}, opts, { headers }));
+      const ct = res.headers.get("content-type") || "";
+      const data = ct.includes("application/json") ? await res.json() : await res.text();
+      if (!res.ok) {
+        const msg = (data && data.error) ? data.error : ("HTTP " + res.status);
+        throw new Error(msg);
+      }
+      return data;
+    }
+
+    function escapeHtml(s) {
+      return (s || "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
+    }
+
+    function renderList(items) {
+      $("count").textContent = (items.length || 0) + "/50";
+      const wrap = $("list");
+      wrap.innerHTML = "";
+      if (!items.length) {
+        wrap.innerHTML = '<div class="hint">Belum ada catatan.</div>';
+        return;
+      }
+      for (const it of items) {
+        const el = document.createElement("div");
+        el.className = "item";
+        el.innerHTML = `
+          <div class="item-top">
+            <div>
+              <div><span class="badge">${escapeHtml(it.person)}</span></div>
+              <div class="meta">${escapeHtml(it.date)} • ${new Date(it.updatedAt).toLocaleString()}</div>
+            </div>
+            <div class="row">
+              <button class="secondary" data-edit="${it.id}">Edit</button>
+              <button class="danger" data-del="${it.id}">Hapus</button>
+            </div>
+          </div>
+          <div class="content">${escapeHtml(it.content)}</div>
+        `;
+        wrap.appendChild(el);
+      }
+
+      wrap.querySelectorAll("[data-edit]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const id = btn.getAttribute("data-edit");
+          const item = items.find(x => String(x.id) === String(id));
+          if (!item) return;
+
+          editingId = item.id;
+          $("person").value = item.person;
+          $("date").value = item.date;
+          $("content").value = item.content;
+          $("cancelEditBtn").classList.remove("hidden");
+          $("saveBtn").textContent = "Simpan perubahan";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+      });
+
+      wrap.querySelectorAll("[data-del]").forEach(btn => {
+        btn.addEventListener("click", async () => {
+          const id = btn.getAttribute("data-del");
+          if (!confirm("Hapus catatan ini?")) return;
+          setStatus($("saveStatus"), "Menghapus...", null);
+          try {
+            await api("/api/notes?id=" + encodeURIComponent(id), { method: "DELETE" });
+            setStatus($("saveStatus"), "Terhapus.", "ok");
+            await loadNotes();
+          } catch (e) {
+            setStatus($("saveStatus"), e.message, "err");
+          }
+        });
+      });
+    }
+
+    function resetForm() {
+      editingId = null;
+      $("person").value = "Fuad";
+      $("date").value = "";
+      $("content").value = "";
+      $("cancelEditBtn").classList.add("hidden");
+      $("saveBtn").textContent = "Simpan";
+    }
+
+    async function loadNotes() {
+      setStatus($("saveStatus"), "Memuat...", null);
+      try {
+        const data = await api("/api/notes", { method: "GET" });
+        renderList(data.items || []);
+        setStatus($("saveStatus"), "", null);
+      } catch (e) {
+        setStatus($("saveStatus"), e.message, "err");
+        renderList([]);
+      }
+    }
+
+    $("loginBtn").addEventListener("click", async () => {
+      setStatus($("loginStatus"), "Memeriksa...", null);
+      try {
+        const code = $("accessCode").value.trim();
+        const data = await api("/api/notes/auth", { method: "POST", body: JSON.stringify({ code }) });
+        sessionToken = data.token;
+        localStorage.setItem("sessionToken", sessionToken);
+        showApp(true);
+        setStatus($("loginStatus"), "", null);
+        await loadNotes();
+      } catch (e) {
+        setStatus($("loginStatus"), e.message, "err");
+      }
+    });
+
+    $("logoutBtn").addEventListener("click", () => {
+      sessionToken = "";
+      localStorage.removeItem("sessionToken");
+      resetForm();
+      showApp(false);
+    });
+
+    $("saveBtn").addEventListener("click", async () => {
+      setStatus($("saveStatus"), "Menyimpan...", null);
+      try {
+        const person = $("person").value;
+        const date = $("date").value;
+        const content = $("content").value.trim();
+
+        if (!date) throw new Error("Tanggal wajib diisi.");
+        if (!content) throw new Error("Isi catatan tidak boleh kosong.");
+        if (content.length > 2000) throw new Error("Isi catatan maksimal 2000 karakter.");
+
+        if (editingId) {
+          await api("/api/notes", {
+            method: "PUT",
+            body: JSON.stringify({ id: editingId, person, date, content })
+          });
+          setStatus($("saveStatus"), "Tersimpan (updated).", "ok");
+        } else {
+          await api("/api/notes", {
+            method: "POST",
+            body: JSON.stringify({ person, date, content })
+          });
+          setStatus($("saveStatus"), "Tersimpan.", "ok");
+        }
+
+        resetForm();
+        await loadNotes();
+      } catch (e) {
+        setStatus($("saveStatus"), e.message, "err");
+      }
+    });
+
+    $("cancelEditBtn").addEventListener("click", () => {
+      resetForm();
+      setStatus($("saveStatus"), "Batal edit.", null);
+    });
+
+    $("refreshBtn").addEventListener("click", loadNotes);
+
+    // auto-login jika ada token tersimpan
+    (async () => {
+      if (!sessionToken) { showApp(false); return; }
+      showApp(true);
+      await loadNotes();
+    })();
+  </script>
+</body>
+</html>
