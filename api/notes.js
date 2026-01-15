@@ -1,6 +1,9 @@
 import { createClient } from "@libsql/client";
+import jwt from "jsonwebtoken";
 
 const MAX_NOTES = 50;
+const JWT_ISSUER = "fuad-eli-notes";
+const JWT_AUDIENCE = "fuad-eli-notes-web";
 
 function json(body, status = 200, headers = {}) {
   return new Response(JSON.stringify(body), {
@@ -9,11 +12,50 @@ function json(body, status = 200, headers = {}) {
   });
 }
 
+function getJwtSecret() {
+  const s = process.env.JWT_SECRET;
+  if (!s) throw new Error("Env JWT_SECRET belum diset.");
+  return s;
+}
+
+function signToken() {
+  const secret = getJwtSecret();
+  // HS256 default di jsonwebtoken, set expiresIn agar token tidak “selamanya”. [web:44]
+  return jwt.sign(
+    { scope: "notes:rw" },
+    secret,
+    {
+      algorithm: "HS256",
+      expiresIn: "7d",
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE
+    }
+  );
+}
+
+function verifyTokenFromRequest(request) {
+  const h = request.headers.get("authorization") || "";
+  const token = h.startsWith("Bearer ") ? h.slice(7) : "";
+  if (!token) return null;
+
+  try {
+    const secret = getJwtSecret();
+    const payload = jwt.verify(token, secret, {
+      algorithms: ["HS256"],
+      issuer: JWT_ISSUER,
+      audience: JWT_AUDIENCE
+    }); // jwt.verify akan cek signature + exp otomatis. [web:44]
+    return payload;
+  } catch {
+    return null;
+  }
+}
+
 function getClient() {
   const url = process.env.TURSO_DATABASE_URL;
   const authToken = process.env.TURSO_AUTH_TOKEN;
   if (!url || !authToken) throw new Error("Env TURSO_DATABASE_URL / TURSO_AUTH_TOKEN belum diset.");
-  return createClient({ url, authToken }); // Turso JS quickstart pattern [page:1]
+  return createClient({ url, authToken });
 }
 
 async function ensureSchema(db) {
@@ -33,12 +75,6 @@ async function ensureSchema(db) {
   `);
 }
 
-function isAuthed(request) {
-  const h = request.headers.get("authorization") || "";
-  const token = h.startsWith("Bearer ") ? h.slice(7) : "";
-  return token && token === (process.env.ACCESS_CODE || "");
-}
-
 async function readJson(request) {
   try {
     return await request.json();
@@ -51,10 +87,9 @@ export default {
   async fetch(request) {
     try {
       const url = new URL(request.url);
-      const path = url.pathname; // /api/notes atau /api/notes/auth
+      const path = url.pathname;
       const method = request.method.toUpperCase();
 
-      // CORS sederhana (opsional)
       if (method === "OPTIONS") {
         return new Response(null, {
           status: 204,
@@ -66,21 +101,23 @@ export default {
         });
       }
 
-      // AUTH endpoint: POST /api/notes/auth {code}
+      // AUTH: POST /api/notes/auth { code }
       if (path.endsWith("/api/notes/auth")) {
         if (method !== "POST") return json({ error: "Method not allowed" }, 405);
+
         const body = await readJson(request);
         const code = String(body.code || "");
         const access = process.env.ACCESS_CODE || "";
         if (!access) return json({ error: "Env ACCESS_CODE belum diset." }, 500);
         if (code !== access) return json({ error: "Kode akses salah." }, 401);
 
-        // token sederhana: sama dengan ACCESS_CODE (sesuai kebutuhan ringkas)
-        return json({ token: access });
+        const token = signToken();
+        return json({ token });
       }
 
-      // selain /auth wajib auth
-      if (!isAuthed(request)) return json({ error: "Unauthorized." }, 401);
+      // selain /auth wajib JWT
+      const payload = verifyTokenFromRequest(request);
+      if (!payload) return json({ error: "Unauthorized." }, 401);
 
       const db = getClient();
       await ensureSchema(db);
@@ -104,7 +141,7 @@ export default {
         return json({ items });
       }
 
-      // POST /api/notes  {person,date,content}
+      // POST /api/notes
       if (path.endsWith("/api/notes") && method === "POST") {
         const body = await readJson(request);
         const person = body.person === "Eli" ? "Eli" : "Fuad";
@@ -128,7 +165,7 @@ export default {
         return json({ ok: true });
       }
 
-      // PUT /api/notes {id,person,date,content}
+      // PUT /api/notes
       if (path.endsWith("/api/notes") && method === "PUT") {
         const body = await readJson(request);
         const id = Number(body.id);
@@ -142,13 +179,12 @@ export default {
         if (content.length > 2000) return json({ error: "Isi catatan maksimal 2000 karakter." }, 400);
 
         const now = new Date().toISOString();
-        const r = await db.execute({
+        await db.execute({
           sql: `UPDATE notes SET person = ?, date = ?, content = ?, updatedAt = ? WHERE id = ?`,
           args: [person, date, content, now, id],
         });
 
-        // libsql result shape bisa berbeda, jadi cukup return ok
-        return json({ ok: true, changed: r.rowsAffected ?? null });
+        return json({ ok: true });
       }
 
       // DELETE /api/notes?id=123
