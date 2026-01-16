@@ -2,112 +2,230 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
     <title>Notes Penting ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f3f4f6; }
+        body { background-color: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
         .hidden-app { display: none; }
+        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
+        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
-<body class="p-4 md:p-8">
-    <div id="login-screen" class="max-w-md mx-auto mt-20 bg-white p-6 rounded-xl shadow-md">
-        <h2 class="text-xl font-bold mb-4 text-center">🔐 Masukkan Kode Akses</h2>
-        <input type="password" id="access-input" class="w-full border p-2 rounded mb-4 text-center" placeholder="Kode Rahasia">
-        <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Masuk</button>
+<body class="antialiased">
+
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
+        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl">
+            <div class="text-center mb-6">
+                <span class="text-4xl">🔐</span>
+                <h2 class="text-2xl font-bold text-gray-800 mt-2">Akses Terbatas</h2>
+                <p class="text-gray-500 text-sm">Masukkan kode akses untuk melihat catatan</p>
+            </div>
+            <input type="password" id="access-input" 
+                class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 text-center focus:border-indigo-500 outline-none transition" 
+                placeholder="Kode Rahasia">
+            <button onclick="login()" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">
+                Masuk
+            </button>
+        </div>
     </div>
 
-    <div id="app" class="max-w-2xl mx-auto hidden-app">
-        <header class="flex justify-between items-center mb-6">
-            <h1 class="text-2xl font-bold text-gray-800">Note Fuad & Eli 📝</h1>
-            <button onclick="logout()" class="text-sm text-red-500 underline">Keluar</button>
+    <div id="app" class="max-w-2xl mx-auto hidden-app p-4 pb-20">
+        <header class="flex justify-between items-center py-6">
+            <div>
+                <h1 class="text-2xl font-black text-gray-800 tracking-tight">OUR NOTES 📝</h1>
+                <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">Fuad & Eli</p>
+            </div>
+            <button onclick="logout()" class="bg-white px-4 py-2 rounded-lg text-xs font-bold text-red-500 shadow-sm border border-red-50 spine">Keluar</button>
         </header>
 
-        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
             <input type="hidden" id="note-id">
-            <div class="grid grid-cols-2 gap-4 mb-4">
+            <div class="grid grid-cols-2 gap-3 mb-4">
                 <div>
-                    <label class="block text-sm font-medium mb-1">Nama</label>
-                    <select id="input-name" class="w-full border p-2 rounded">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Nama</label>
+                    <select id="input-name" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 font-semibold focus:ring-2 focus:ring-indigo-500">
                         <option value="Fuad">Fuad</option>
                         <option value="Eli">Eli</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-sm font-medium mb-1">Tanggal</label>
-                    <input type="date" id="input-date" class="w-full border p-2 rounded">
+                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Tanggal Peristiwa</label>
+                    <input type="date" id="input-date" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 focus:ring-2 focus:ring-indigo-500">
                 </div>
             </div>
             <div class="mb-4">
-                <label class="block text-sm font-medium mb-1">Isi Note</label>
-                <textarea id="input-content" rows="3" class="w-full border p-2 rounded" placeholder="Tulis peristiwa penting..."></textarea>
+                <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Apa yang terjadi?</label>
+                <textarea id="input-content" rows="3" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 focus:ring-2 focus:ring-indigo-500" placeholder="Tulis catatan di sini..."></textarea>
             </div>
-            <button onclick="saveNote()" id="btn-save" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold shadow-lg active:scale-95 transition">Simpan Note</button>
-            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-2 text-gray-500 text-sm">Batal Edit</button>
+            <button onclick="saveNote()" id="btn-save" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-indigo-200 shadow-lg active:scale-95 transition">
+                Simpan Catatan
+            </button>
+            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-3 text-gray-400 text-sm font-medium">Batal Edit</button>
         </div>
 
+        <div class="flex items-center justify-between mb-4 px-1">
+            <h3 class="font-bold text-gray-700">Catatan Tersimpan</h3>
+            <span id="note-count" class="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600 font-bold">0/50</span>
+        </div>
+        
         <div id="notes-container" class="space-y-4">
-            </div>
+            <div class="text-center py-10 text-gray-400 text-sm">Memuat catatan...</div>
+        </div>
     </div>
 
-   <script>
-    console.log("Script loaded!");
+    <script>
+        // Set tanggal hari ini sebagai default
+        document.getElementById('input-date').valueAsDate = new Date();
 
-    async function login() {
-        const input = document.getElementById('access-input');
-        const code = input.value;
-        
-        console.log("Mencoba login dengan kode:", code);
-        
-        if (!code) {
-            alert("Silakan isi kode akses dulu!");
-            return;
-        }
-
-        try {
-            // Memberi tahu user bahwa proses sedang berjalan
-            const btn = document.querySelector('button');
-            const originalText = btn.innerText;
-            btn.innerText = "Memverifikasi...";
-            btn.disabled = true;
-
-            console.log("Mengirim request ke /api/notes...");
-            const res = await fetch('/api/notes', {
-                method: 'GET',
-                headers: { 'x-access-code': code }
-            });
-
-            console.log("Respon diterima. Status:", res.status);
-
-            if (res.ok) {
-                localStorage.setItem('accessCode', code);
-                alert("Login Berhasil!");
-                location.reload(); // Refresh untuk memicu showApp()
-            } else {
-                const errorData = await res.json();
-                alert("Gagal: " + (errorData.error || "Kode salah!"));
+        // Cek login saat aplikasi dibuka
+        window.onload = () => {
+            const code = localStorage.getItem('accessCode');
+            if (code) {
+                showApp();
             }
-        } catch (err) {
-            console.error("Error Fetch:", err);
-            alert("Terjadi kesalahan koneksi ke API: " + err.message);
-        } finally {
-            const btn = document.querySelector('button');
-            btn.innerText = "Masuk";
-            btn.disabled = false;
-        }
-    }
+        };
 
-    // Fungsi otomatis jalan saat halaman dibuka
-    window.onload = function() {
-        const savedCode = localStorage.getItem('accessCode');
-        if (savedCode) {
+        async function handleResponse(res) {
+            const contentType = res.headers.get("content-type");
+            if (contentType && contentType.includes("application/json")) {
+                return await res.json();
+            } else {
+                const text = await res.text();
+                throw new Error("Respon server bukan JSON: " + text.substring(0, 50));
+            }
+        }
+
+        function login() {
+            const code = document.getElementById('access-input').value;
+            if (!code) return alert("Masukkan kode!");
+            localStorage.setItem('accessCode', code);
+            showApp();
+        }
+
+        function logout() {
+            localStorage.removeItem('accessCode');
+            location.reload();
+        }
+
+        async function showApp() {
+            const code = localStorage.getItem('accessCode');
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden-app');
             fetchNotes();
         }
-    };
 
-    // ... (fungsi fetchNotes, saveNote, dll tetap sama)
-</script>
+        async function fetchNotes() {
+            const container = document.getElementById('notes-container');
+            const code = localStorage.getItem('accessCode');
+
+            try {
+                const res = await fetch('/api/notes', {
+                    headers: { 'x-access-code': code }
+                });
+
+                if (res.status === 401) {
+                    alert("Kode akses salah atau expired!");
+                    logout();
+                    return;
+                }
+
+                const notes = await handleResponse(res);
+                document.getElementById('note-count').innerText = `${notes.length}/50`;
+                
+                if (notes.length === 0) {
+                    container.innerHTML = `<div class="bg-white p-10 rounded-2xl text-center text-gray-400 border-2 border-dashed border-gray-200">Belum ada catatan yang disimpan.</div>`;
+                    return;
+                }
+
+                container.innerHTML = notes.map(n => `
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 ${n.name === 'Fuad' ? 'border-blue-500' : 'border-pink-500'} relative overflow-hidden transition hover:shadow-md">
+                        <div class="flex justify-between items-start mb-2">
+                            <div>
+                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${n.name === 'Fuad' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}">${n.name}</span>
+                                <h4 class="text-[11px] text-gray-400 font-bold mt-1">${n.event_date}</h4>
+                            </div>
+                            <div class="flex gap-3">
+                                <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\`)" class="text-indigo-500 text-xs font-bold">Edit</button>
+                                <button onclick="deleteNote(${n.id})" class="text-red-400 text-xs font-bold">Hapus</button>
+                            </div>
+                        </div>
+                        <p class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">${n.content}</p>
+                    </div>
+                `).join('');
+            } catch (err) {
+                container.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl text-xs">${err.message}</div>`;
+            }
+        }
+
+        async function saveNote() {
+            const btn = document.getElementById('btn-save');
+            const id = document.getElementById('note-id').value;
+            const name = document.getElementById('input-name').value;
+            const date = document.getElementById('input-date').value;
+            const content = document.getElementById('input-content').value;
+
+            if (!content || !date) return alert("Mohon isi tanggal dan konten!");
+
+            btn.disabled = true;
+            btn.innerText = "Menyimpan...";
+
+            try {
+                const res = await fetch('/api/notes', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'x-access-code': localStorage.getItem('accessCode')
+                    },
+                    body: JSON.stringify({ id, name, date, content })
+                });
+
+                const result = await handleResponse(res);
+                if (res.ok) {
+                    resetForm();
+                    fetchNotes();
+                } else {
+                    alert(result.error);
+                }
+            } catch (err) {
+                alert("Gagal menyimpan: " + err.message);
+            } finally {
+                btn.disabled = false;
+                btn.innerText = "Simpan Catatan";
+            }
+        }
+
+        async function deleteNote(id) {
+            if (!confirm("Hapus catatan ini selamanya?")) return;
+            try {
+                const res = await fetch(`/api/notes?id=${id}`, {
+                    method: 'DELETE',
+                    headers: { 'x-access-code': localStorage.getItem('accessCode') }
+                });
+                await handleResponse(res);
+                fetchNotes();
+            } catch (err) {
+                alert(err.message);
+            }
+        }
+
+        function editNote(id, name, date, content) {
+            document.getElementById('note-id').value = id;
+            document.getElementById('input-name').value = name;
+            document.getElementById('input-date').value = date;
+            document.getElementById('input-content').value = content;
+            document.getElementById('btn-save').innerText = "Perbarui Catatan";
+            document.getElementById('btn-cancel').classList.remove('hidden');
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function resetForm() {
+            document.getElementById('note-id').value = '';
+            document.getElementById('input-content').value = '';
+            document.getElementById('input-date').valueAsDate = new Date();
+            document.getElementById('btn-save').innerText = "Simpan Catatan";
+            document.getElementById('btn-cancel').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
