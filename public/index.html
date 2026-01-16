@@ -9,80 +9,91 @@
     <style>
         body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; }
         .hidden-view { display: none; }
-        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
-        .note-content { line-height: 1.4; letter-spacing: -0.01em; }
+        .glass-nav { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .note-content { line-height: 1.3; letter-spacing: -0.02em; }
+        /* Efek Stabilo Khusus */
+        .stabilo-blue {
+            background-color: #2563eb; /* Biru stabilo */
+            color: #ffffff;
+            padding: 2px 10px;
+            border-radius: 4px;
+            font-weight: 800;
+            display: inline-block;
+        }
     </style>
 </head>
 <body class="antialiased text-slate-900">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-8">
-        <div class="w-full max-w-sm text-center">
-            <h2 class="text-4xl font-black mb-2 italic">Hello.</h2>
-            <p class="text-slate-400 text-sm mb-8 font-medium">Masukkan kode untuk melihat kenangan.</p>
-            <input type="password" id="access-input" class="w-full bg-slate-100 p-5 rounded-2xl mb-4 text-center text-xl font-bold focus:ring-2 focus:ring-slate-900 outline-none transition-all" placeholder="••••••">
-            <button onclick="login()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black active:scale-95 transition-all">MASUK</button>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-8 bg-slate-50">
+        <div class="w-full max-w-sm text-center bg-white p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50">
+            <h2 class="text-4xl font-black mb-2 tracking-tighter">Login.</h2>
+            <p class="text-slate-400 text-xs mb-8 font-bold uppercase tracking-widest">Akses Khusus Fuad & Eli</p>
+            <input type="password" id="access-input" class="w-full bg-slate-100 p-5 rounded-2xl mb-4 text-center text-xl font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all" placeholder="••••••">
+            <button onclick="login()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black active:scale-95 transition-all shadow-lg shadow-blue-200">MASUK</button>
         </div>
     </div>
 
     <div id="app" class="hidden-view">
         
-        <nav class="fixed top-0 left-0 right-0 glass-nav z-50 border-b border-slate-50">
+        <nav class="fixed top-0 left-0 right-0 glass-nav z-50 border-b border-slate-100">
             <div class="max-w-xl mx-auto px-6 h-20 flex justify-between items-center">
-                <div>
-                    <h1 class="text-xl font-black tracking-tighter">OUR NOTES.</h1>
-                </div>
+                <h1 class="text-xl font-black tracking-tighter">OUR NOTES.</h1>
                 <div class="flex items-center gap-4">
-                    <button onclick="showView('form')" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                    <button onclick="showView('form')" class="w-12 h-12 bg-blue-600 text-white rounded-2xl flex items-center justify-center shadow-lg shadow-blue-200 active:scale-90 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                     </button>
-                    <button onclick="logout()" class="text-[10px] font-black text-slate-300 uppercase">Exit</button>
+                    <button onclick="logout()" class="p-2 text-slate-300 hover:text-red-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                    </button>
                 </div>
             </div>
         </nav>
 
         <div id="view-list" class="max-w-xl mx-auto px-6 pt-28 pb-10">
-            <div id="notes-container" class="space-y-12">
+            <div id="notes-container" class="space-y-14">
                 </div>
         </div>
 
         <div id="view-form" class="hidden-view fixed inset-0 bg-white z-[60] overflow-y-auto">
             <div class="max-w-xl mx-auto px-6 py-10">
                 <div class="flex justify-between items-center mb-10">
-                    <button onclick="showView('list')" class="text-slate-900 font-bold flex items-center gap-2">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <button onclick="showView('list')" class="text-slate-900 font-black text-sm flex items-center gap-2 bg-slate-100 px-4 py-2 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
                             <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
                         </svg>
-                        Kembali
+                        BATAL
                     </button>
-                    <h2 id="form-title" class="text-sm font-black uppercase tracking-widest text-slate-400">Tambah Catatan</h2>
+                    <h2 id="form-title" class="text-xs font-black uppercase tracking-[0.2em] text-slate-400">Tambah Catatan</h2>
                 </div>
 
                 <div class="space-y-6">
                     <input type="hidden" id="note-id">
                     
                     <div class="grid grid-cols-2 gap-4">
-                        <div class="bg-slate-50 p-4 rounded-3xl">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Penulis</label>
-                            <select id="input-name" class="w-full bg-transparent font-bold text-lg outline-none">
+                        <div class="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Siapa?</label>
+                            <select id="input-name" class="w-full bg-transparent font-bold text-lg outline-none appearance-none">
                                 <option value="Fuad">Fuad</option>
                                 <option value="Eli">Eli</option>
                             </select>
                         </div>
-                        <div class="bg-slate-50 p-4 rounded-3xl">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Tanggal</label>
+                        <div class="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Kapan?</label>
                             <input type="date" id="input-date" class="w-full bg-transparent font-bold text-lg outline-none">
                         </div>
                     </div>
 
-                    <div class="bg-slate-50 p-6 rounded-[2rem]">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Isi Kenangan / Peristiwa</label>
-                        <textarea id="input-content" rows="8" class="w-full bg-transparent text-xl font-medium outline-none leading-relaxed" placeholder="Tulis sesuatu..."></textarea>
+                    <div class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Detail Peristiwa</label>
+                        <textarea id="input-content" rows="10" class="w-full bg-transparent text-xl font-semibold outline-none leading-relaxed placeholder:text-slate-300" placeholder="Apa yang terjadi hari ini?"></textarea>
                     </div>
 
-                    <button onclick="saveNote()" id="btn-save" class="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black shadow-xl active:scale-95 transition-all">
-                        SIMPAN SEKARANG
+                    <button onclick="saveNote()" id="btn-save" class="w-full bg-blue-600 text-white py-6 rounded-[2rem] font-black shadow-xl shadow-blue-100 active:scale-95 transition-all uppercase tracking-widest text-sm">
+                        Simpan Peristiwa
                     </button>
                 </div>
             </div>
@@ -91,14 +102,20 @@
     </div>
 
     <script>
-        // Inisialisasi Tanggal
+        // Set default tanggal hari ini
         document.getElementById('input-date').valueAsDate = new Date();
 
         window.onload = () => {
             if (localStorage.getItem('accessCode')) showApp();
         };
 
-        // Switch Antar Halaman (SPA)
+        // Format Tanggal: DD-MM-YYYY
+        function formatDateIndo(dateStr) {
+            if(!dateStr) return "";
+            const [year, month, day] = dateStr.split('-');
+            return `${day}-${month}-${year}`;
+        }
+
         function showView(viewName) {
             if (viewName === 'list') {
                 document.getElementById('view-list').classList.remove('hidden-view');
@@ -147,30 +164,35 @@
                 const notes = await apiFetch('/api/notes');
                 
                 if (notes.length === 0) {
-                    container.innerHTML = `<div class="py-20 text-center text-slate-300 font-bold italic">Belum ada catatan yang terukir.</div>`;
+                    container.innerHTML = `<div class="py-20 text-center text-slate-300 font-black uppercase tracking-widest text-xs">Belum ada catatan.</div>`;
                     return;
                 }
 
                 container.innerHTML = notes.map(n => `
-                    <div class="relative group">
-                        <div class="text-[11px] font-black text-slate-300 uppercase tracking-[0.3em] mb-3 flex items-center gap-3">
-                            ${n.event_date}
-                            <span class="h-[1px] flex-1 bg-slate-50"></span>
-                            <span class="${n.name === 'Fuad' ? 'text-blue-400' : 'text-rose-400'}">${n.name}</span>
+                    <div class="relative">
+                        <div class="mb-4">
+                            <span class="stabilo-blue text-[13px] tracking-widest">
+                                ${formatDateIndo(n.event_date)}
+                            </span>
                         </div>
                         
-                        <h2 class="note-content text-3xl font-extrabold text-slate-900 mb-4 pr-10">
+                        <h2 class="note-content text-3xl font-[800] text-slate-900 mb-5 leading-tight">
                             ${n.content}
                         </h2>
 
-                        <div class="flex gap-4 mt-2">
-                            <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\` )" class="text-[10px] font-black uppercase text-slate-400 hover:text-indigo-600 transition-colors">Edit</button>
-                            <button onclick="deleteNote(${n.id})" class="text-[10px] font-black uppercase text-slate-400 hover:text-red-500 transition-colors">Hapus</button>
+                        <div class="flex items-center justify-between border-t border-slate-50 pt-4">
+                            <span class="text-[10px] font-black uppercase tracking-widest ${n.name === 'Fuad' ? 'text-blue-500' : 'text-rose-500'}">
+                                By ${n.name}
+                            </span>
+                            <div class="flex gap-5">
+                                <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\` )" class="text-[10px] font-black uppercase text-slate-300 hover:text-blue-600 transition-colors tracking-widest">Edit</button>
+                                <button onclick="deleteNote(${n.id})" class="text-[10px] font-black uppercase text-slate-300 hover:text-red-500 transition-colors tracking-widest">Hapus</button>
+                            </div>
                         </div>
                     </div>
                 `).join('');
             } catch (err) {
-                container.innerHTML = `<div class="text-red-500 text-xs p-4 bg-red-50 rounded-2xl">${err.message}</div>`;
+                container.innerHTML = `<div class="text-red-500 text-[10px] font-bold p-5 bg-red-50 rounded-2xl">ERROR: ${err.message}</div>`;
             }
         }
 
@@ -181,10 +203,10 @@
             const date = document.getElementById('input-date').value;
             const content = document.getElementById('input-content').value;
 
-            if (!content || !date) return alert("Lengkapi data kenangannya!");
+            if (!content || !date) return alert("Isi semuanya dulu ya!");
 
             btn.disabled = true;
-            btn.innerText = "MENYIMPAN...";
+            btn.innerText = "SEDANG MENYIMPAN...";
 
             try {
                 await apiFetch('/api/notes', {
@@ -198,12 +220,12 @@
                 alert("Gagal menyimpan: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "SIMPAN SEKARANG";
+                btn.innerText = "Simpan Peristiwa";
             }
         }
 
         async function deleteNote(id) {
-            if (!confirm("Hapus kenangan ini?")) return;
+            if (!confirm("Hapus catatan ini?")) return;
             try {
                 await apiFetch(`/api/notes?id=${id}`, { method: 'DELETE' });
                 fetchNotes();
