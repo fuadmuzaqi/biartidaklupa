@@ -4,6 +4,6 @@
   "type": "module",
   "main": "api/notes.js",
   "dependencies": {
-    "@libsql/client": "^0.6.0"
+    "@libsql/client": "latest"
   }
 }
