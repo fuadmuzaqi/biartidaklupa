@@ -3,81 +3,67 @@ import { createClient } from '@libsql/client';
 export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json');
 
-  // 1. CEK VARIABEL ENVIRONMENT
   const url = process.env.TURSO_URL;
   const token = process.env.TURSO_TOKEN;
 
   if (!url || !token) {
-    return res.status(500).json({ 
-      error: "Variabel Belum Terpasang", 
-      details: `URL: ${url ? 'OK' : 'KOSONG'}, Token: ${token ? 'OK' : 'KOSONG'}. Pastikan sudah klik REDEPLOY di Vercel.` 
-    });
+    return res.status(500).json({ error: "Environment Variables belum lengkap di Vercel!" });
   }
 
   try {
-    const client = createClient({ url, authToken: token });
-    const authHeader = req.headers['x-access-code'];
+    // Inisialisasi client di dalam handler
+    const client = createClient({ 
+      url: url.trim(), 
+      authToken: token.trim() 
+    });
 
-    // 2. CEK KODE AKSES
+    const authHeader = req.headers['x-access-code'];
     if (authHeader !== process.env.ACCESS_CODE) {
       return res.status(401).json({ error: 'Kode akses salah!' });
     }
 
-    // 3. COBA KONEKSI KE DATABASE
+    // GET DATA
     if (req.method === 'GET') {
-      try {
-        const result = await client.execute("SELECT * FROM notes ORDER BY event_date DESC");
-        // Jika berhasil, kirim data (pastikan ini array)
-        return res.status(200).json(Array.isArray(result.rows) ? result.rows : []);
-      } catch (dbError) {
-        // Tampilkan error database secara detail
-        return res.status(500).json({ 
-          error: "Turso Query Error", 
-          details: dbError.message 
-        });
-      }
+      const result = await client.execute("SELECT * FROM notes ORDER BY event_date DESC");
+      return res.status(200).json(result.rows);
     }
 
-    // LOGIKA SIMPAN (POST)
+    // POST DATA (SIMPAN)
     if (req.method === 'POST') {
-      try {
-        const { id, name, date, content } = req.body;
+      const { id, name, date, content } = req.body;
+      if (!name || !date || !content) {
+        return res.status(400).json({ error: "Data tidak lengkap" });
+      }
 
-        // Cek apakah data sampai ke server
-        if (!name || !date || !content) {
-          return res.status(400).json({ error: "Data tidak lengkap!", details: "Nama, Tanggal, atau Konten kosong." });
-        }
-
-        if (id) {
-          // Update
-          await client.execute({
-            sql: "UPDATE notes SET name = ?, event_date = ?, content = ? WHERE id = ?",
-            args: [name, date, content, id]
-          });
-          return res.status(200).json({ message: 'Update berhasil' });
-        } else {
-          // Cek Limit
-          const countRes = await client.execute("SELECT COUNT(*) as total FROM notes");
-          if (countRes.rows[0].total >= 50) {
-            return res.status(400).json({ error: "Limit tercapai", details: "Sudah ada 50 catatan." });
-          }
-          // Simpan Baru
-          await client.execute({
-            sql: "INSERT INTO notes (name, event_date, content) VALUES (?, ?, ?)",
-            args: [name, date, content]
-          });
-          return res.status(201).json({ message: 'Simpan berhasil' });
-        }
-      } catch (postError) {
-        return res.status(500).json({ error: "Gagal Simpan ke Database", details: postError.message });
+      if (id) {
+        await client.execute({
+          sql: "UPDATE notes SET name = ?, event_date = ?, content = ? WHERE id = ?",
+          args: [name, date, content, id]
+        });
+        return res.status(200).json({ message: 'Update berhasil' });
+      } else {
+        await client.execute({
+          sql: "INSERT INTO notes (name, event_date, content) VALUES (?, ?, ?)",
+          args: [name, date, content]
+        });
+        return res.status(201).json({ message: 'Simpan berhasil' });
       }
     }
 
-    // DELETE ... (sama seperti sebelumnya)
+    // DELETE DATA
+    if (req.method === 'DELETE') {
+      const { id } = req.query;
+      await client.execute({
+        sql: "DELETE FROM notes WHERE id = ?",
+        args: [id]
+      });
+      return res.status(200).json({ message: 'Hapus berhasil' });
+    }
 
   } catch (error) {
+    console.error("Database Error:", error);
     return res.status(500).json({ 
-      error: "General Server Error", 
+      error: "Koneksi Database Gagal", 
       details: error.message 
     });
   }
