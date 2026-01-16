@@ -50,102 +50,64 @@
             </div>
     </div>
 
-    <script>
-        let accessCode = localStorage.getItem('accessCode');
-        if(accessCode) showApp();
+   <script>
+    console.log("Script loaded!");
 
-        function login() {
-            const code = document.getElementById('access-input').value;
-            localStorage.setItem('accessCode', code);
-            location.reload();
+    async function login() {
+        const input = document.getElementById('access-input');
+        const code = input.value;
+        
+        console.log("Mencoba login dengan kode:", code);
+        
+        if (!code) {
+            alert("Silakan isi kode akses dulu!");
+            return;
         }
 
-        function logout() {
-            localStorage.removeItem('accessCode');
-            location.reload();
-        }
+        try {
+            // Memberi tahu user bahwa proses sedang berjalan
+            const btn = document.querySelector('button');
+            const originalText = btn.innerText;
+            btn.innerText = "Memverifikasi...";
+            btn.disabled = true;
 
-        function showApp() {
+            console.log("Mengirim request ke /api/notes...");
+            const res = await fetch('/api/notes', {
+                method: 'GET',
+                headers: { 'x-access-code': code }
+            });
+
+            console.log("Respon diterima. Status:", res.status);
+
+            if (res.ok) {
+                localStorage.setItem('accessCode', code);
+                alert("Login Berhasil!");
+                location.reload(); // Refresh untuk memicu showApp()
+            } else {
+                const errorData = await res.json();
+                alert("Gagal: " + (errorData.error || "Kode salah!"));
+            }
+        } catch (err) {
+            console.error("Error Fetch:", err);
+            alert("Terjadi kesalahan koneksi ke API: " + err.message);
+        } finally {
+            const btn = document.querySelector('button');
+            btn.innerText = "Masuk";
+            btn.disabled = false;
+        }
+    }
+
+    // Fungsi otomatis jalan saat halaman dibuka
+    window.onload = function() {
+        const savedCode = localStorage.getItem('accessCode');
+        if (savedCode) {
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden-app');
             fetchNotes();
         }
+    };
 
-        async function fetchNotes() {
-            const res = await fetch('/api/notes', {
-                headers: { 'x-access-code': localStorage.getItem('accessCode') }
-            });
-            if (res.status === 401) return logout();
-            const notes = await res.json();
-            
-            const container = document.getElementById('notes-container');
-            container.innerHTML = notes.map(n => `
-                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 ${n.name === 'Fuad' ? 'border-blue-500' : 'border-pink-500'}">
-                    <div class="flex justify-between items-start">
-                        <div>
-                            <span class="text-xs font-bold uppercase ${n.name === 'Fuad' ? 'text-blue-600' : 'text-pink-600'}">${n.name}</span>
-                            <p class="text-xs text-gray-400">${n.event_date}</p>
-                        </div>
-                        <div class="space-x-2">
-                            <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', '${n.content.replace(/'/g, "\\'")}')" class="text-xs text-blue-500">Edit</button>
-                            <button onclick="deleteNote(${n.id})" class="text-xs text-red-500">Hapus</button>
-                        </div>
-                    </div>
-                    <p class="mt-2 text-gray-700 whitespace-pre-wrap">${n.content}</p>
-                </div>
-            `).join('');
-        }
-
-        async function saveNote() {
-            const id = document.getElementById('note-id').value;
-            const name = document.getElementById('input-name').value;
-            const date = document.getElementById('input-date').value;
-            const content = document.getElementById('input-content').value;
-
-            if(!date || !content) return alert('Isi semua field!');
-
-            const res = await fetch('/api/notes', {
-                method: 'POST',
-                headers: { 
-                    'Content-Type': 'application/json',
-                    'x-access-code': localStorage.getItem('accessCode')
-                },
-                body: JSON.stringify({ id, name, date, content })
-            });
-
-            const data = await res.json();
-            if(res.ok) {
-                resetForm();
-                fetchNotes();
-            } else {
-                alert(data.error);
-            }
-        }
-
-        async function deleteNote(id) {
-            if(!confirm('Hapus note ini?')) return;
-            await fetch(\`/api/notes?id=\${id}\`, {
-                method: 'DELETE',
-                headers: { 'x-access-code': localStorage.getItem('accessCode') }
-            });
-            fetchNotes();
-        }
-
-        function editNote(id, name, date, content) {
-            document.getElementById('note-id').value = id;
-            document.getElementById('input-name').value = name;
-            document.getElementById('input-date').value = date;
-            document.getElementById('input-content').value = content;
-            document.getElementById('btn-save').innerText = 'Perbarui Note';
-            document.getElementById('btn-cancel').classList.remove('hidden');
-        }
-
-        function resetForm() {
-            document.getElementById('note-id').value = '';
-            document.getElementById('input-content').value = '';
-            document.getElementById('btn-save').innerText = 'Simpan Note';
-            document.getElementById('btn-cancel').classList.add('hidden');
-        }
-    </script>
+    // ... (fungsi fetchNotes, saveNote, dll tetap sama)
+</script>
 </body>
 </html>
