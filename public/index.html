@@ -3,103 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Notes Penting ✨</title>
+    <title>Notes Fuad & Eli ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background-color: #f0f2f5; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+        body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; }
         .hidden-app { display: none; }
-        .loader { border-top-color: #3498db; animation: spinner 1.5s linear infinite; }
-        @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .note-card { transition: all 0.2s ease; }
+        .note-card:active { transform: scale(0.98); }
     </style>
 </head>
-<body class="antialiased">
+<body class="antialiased text-slate-800">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-4">
-        <div class="max-w-md w-full bg-white p-8 rounded-2xl shadow-xl">
-            <div class="text-center mb-6">
-                <span class="text-4xl">🔐</span>
-                <h2 class="text-2xl font-bold text-gray-800 mt-2">Akses Terbatas</h2>
-                <p class="text-gray-500 text-sm">Masukkan kode akses untuk melihat catatan</p>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
+        <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
+            <div class="mb-6">
+                <div class="bg-indigo-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span class="text-3xl">🔐</span>
+                </div>
+                <h2 class="text-2xl font-bold">Akses Kode</h2>
+                <p class="text-slate-500 text-sm mt-1">Masukkan kode rahasia untuk masuk</p>
             </div>
             <input type="password" id="access-input" 
-                class="w-full border-2 border-gray-200 p-3 rounded-xl mb-4 text-center focus:border-indigo-500 outline-none transition" 
-                placeholder="Kode Rahasia">
-            <button onclick="login()" id="btn-login" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded-xl font-bold shadow-lg active:scale-95 transition">
-                Masuk
+                class="w-full border-2 border-slate-100 p-4 rounded-2xl mb-4 text-center focus:border-indigo-500 outline-none transition-all text-lg font-bold tracking-widest" 
+                placeholder="••••••">
+            <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-indigo-200 active:scale-95 transition-all">
+                MASUK
             </button>
         </div>
     </div>
 
-    <div id="app" class="max-w-2xl mx-auto hidden-app p-4 pb-20">
-        <header class="flex justify-between items-center py-6">
+    <div id="app" class="max-w-xl mx-auto hidden-app p-4 pb-12">
+        <header class="flex justify-between items-center py-8">
             <div>
-                <h1 class="text-2xl font-black text-gray-800 tracking-tight">OUR NOTES 📝</h1>
-                <p class="text-xs text-gray-500 font-medium uppercase tracking-widest">Fuad & Eli</p>
+                <h1 class="text-2xl font-black tracking-tight text-slate-900">CATATAN KITA 📝</h1>
+                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Fuad & Eli • Private Space</p>
             </div>
-            <button onclick="logout()" class="bg-white px-4 py-2 rounded-lg text-xs font-bold text-red-500 shadow-sm border border-red-50 spine">Keluar</button>
+            <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">KELUAR</button>
         </header>
 
-        <div class="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 mb-8">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8">
             <input type="hidden" id="note-id">
-            <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="grid grid-cols-2 gap-4 mb-4">
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Nama</label>
-                    <select id="input-name" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 font-semibold focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Siapa?</label>
+                    <select id="input-name" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
                         <option value="Fuad">Fuad</option>
                         <option value="Eli">Eli</option>
                     </select>
                 </div>
                 <div>
-                    <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Tanggal Peristiwa</label>
-                    <input type="date" id="input-date" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Kapan?</label>
+                    <input type="date" id="input-date" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
                 </div>
             </div>
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-gray-400 uppercase mb-1 ml-1">Apa yang terjadi?</label>
-                <textarea id="input-content" rows="3" class="w-full bg-gray-50 border-none p-3 rounded-xl text-gray-700 focus:ring-2 focus:ring-indigo-500" placeholder="Tulis catatan di sini..."></textarea>
+            <div class="mb-5">
+                <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Apa peristiwanya?</label>
+                <textarea id="input-content" rows="4" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Tulis sesuatu yang penting..."></textarea>
             </div>
-            <button onclick="saveNote()" id="btn-save" class="w-full bg-indigo-600 text-white py-4 rounded-xl font-bold shadow-indigo-200 shadow-lg active:scale-95 transition">
+            <button onclick="saveNote()" id="btn-save" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
                 Simpan Catatan
             </button>
-            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-3 text-gray-400 text-sm font-medium">Batal Edit</button>
+            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-3 text-xs font-bold text-slate-400">BATALKAN EDIT</button>
         </div>
 
-        <div class="flex items-center justify-between mb-4 px-1">
-            <h3 class="font-bold text-gray-700">Catatan Tersimpan</h3>
-            <span id="note-count" class="text-xs bg-gray-200 px-2 py-1 rounded-full text-gray-600 font-bold">0/50</span>
+        <div class="flex items-center justify-between mb-6 px-1">
+            <h3 class="font-black text-slate-800 text-sm uppercase tracking-wider">Riwayat Catatan</h3>
+            <span id="note-count" class="text-[10px] bg-slate-200 px-3 py-1 rounded-full text-slate-600 font-black">0/50</span>
         </div>
         
         <div id="notes-container" class="space-y-4">
-            <div class="text-center py-10 text-gray-400 text-sm">Memuat catatan...</div>
-        </div>
+            </div>
     </div>
 
     <script>
-        // Set tanggal hari ini sebagai default
+        // Set tanggal hari ini otomatis
         document.getElementById('input-date').valueAsDate = new Date();
 
-        // Cek login saat aplikasi dibuka
         window.onload = () => {
-            const code = localStorage.getItem('accessCode');
-            if (code) {
-                showApp();
-            }
+            if (localStorage.getItem('accessCode')) showApp();
         };
 
-        async function handleResponse(res) {
+        // Fungsi pembantu untuk menangani response API agar tidak muncul "Unexpected Token A"
+        async function apiFetch(url, options = {}) {
+            const res = await fetch(url, {
+                ...options,
+                headers: { 
+                    ...options.headers, 
+                    'x-access-code': localStorage.getItem('accessCode') 
+                }
+            });
+
             const contentType = res.headers.get("content-type");
             if (contentType && contentType.includes("application/json")) {
-                return await res.json();
+                const data = await res.json();
+                if (!res.ok) throw new Error(data.details || data.error || "Gagal melakukan aksi");
+                return data;
             } else {
                 const text = await res.text();
-                throw new Error("Respon server bukan JSON: " + text.substring(0, 50));
+                throw new Error("Server Crash (Bukan JSON): " + text.substring(0, 100));
             }
         }
 
         function login() {
-            const code = document.getElementById('access-input').value;
-            if (!code) return alert("Masukkan kode!");
-            localStorage.setItem('accessCode', code);
+            const val = document.getElementById('access-input').value;
+            if (!val) return alert("Masukkan kode!");
+            localStorage.setItem('accessCode', val);
             showApp();
         }
 
@@ -109,7 +117,6 @@
         }
 
         async function showApp() {
-            const code = localStorage.getItem('accessCode');
             document.getElementById('login-screen').classList.add('hidden');
             document.getElementById('app').classList.remove('hidden-app');
             fetchNotes();
@@ -117,44 +124,43 @@
 
         async function fetchNotes() {
             const container = document.getElementById('notes-container');
-            const code = localStorage.getItem('accessCode');
+            container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold animate-pulse">MEMUAT DATA...</div>';
 
             try {
-                const res = await fetch('/api/notes', {
-                    headers: { 'x-access-code': code }
-                });
+                const notes = await apiFetch('/api/notes');
+                
+                // Pastikan notes adalah array sebelum di-map
+                if (!Array.isArray(notes)) throw new Error("Format data salah (Bukan Array)");
 
-                if (res.status === 401) {
-                    alert("Kode akses salah atau expired!");
-                    logout();
-                    return;
-                }
-
-                const notes = await handleResponse(res);
                 document.getElementById('note-count').innerText = `${notes.length}/50`;
                 
                 if (notes.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-10 rounded-2xl text-center text-gray-400 border-2 border-dashed border-gray-200">Belum ada catatan yang disimpan.</div>`;
+                    container.innerHTML = `<div class="bg-white p-12 rounded-3xl text-center text-slate-300 border-2 border-dashed border-slate-100 font-bold text-sm">Belum ada kenangan tersimpan.</div>`;
                     return;
                 }
 
                 container.innerHTML = notes.map(n => `
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border-l-4 ${n.name === 'Fuad' ? 'border-blue-500' : 'border-pink-500'} relative overflow-hidden transition hover:shadow-md">
-                        <div class="flex justify-between items-start mb-2">
+                    <div class="note-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative">
+                        <div class="flex justify-between items-start mb-4">
                             <div>
-                                <span class="text-[10px] font-black uppercase px-2 py-0.5 rounded ${n.name === 'Fuad' ? 'bg-blue-50 text-blue-600' : 'bg-pink-50 text-pink-600'}">${n.name}</span>
-                                <h4 class="text-[11px] text-gray-400 font-bold mt-1">${n.event_date}</h4>
+                                <span class="text-[9px] font-black uppercase px-2 py-1 rounded-lg ${n.name === 'Fuad' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}">${n.name}</span>
+                                <h4 class="text-[10px] text-slate-400 font-black mt-2 tracking-tighter italic uppercase">${n.event_date}</h4>
                             </div>
-                            <div class="flex gap-3">
-                                <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\`)" class="text-indigo-500 text-xs font-bold">Edit</button>
-                                <button onclick="deleteNote(${n.id})" class="text-red-400 text-xs font-bold">Hapus</button>
+                            <div class="flex gap-4">
+                                <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\` )" class="text-indigo-500 text-[10px] font-black uppercase tracking-widest">Edit</button>
+                                <button onclick="deleteNote(${n.id})" class="text-slate-300 hover:text-red-500 text-[10px] font-black uppercase tracking-widest transition-colors">Hapus</button>
                             </div>
                         </div>
-                        <p class="text-gray-700 text-sm leading-relaxed whitespace-pre-wrap">${n.content}</p>
+                        <p class="text-slate-700 text-sm leading-relaxed font-medium whitespace-pre-wrap">${n.content}</p>
                     </div>
                 `).join('');
             } catch (err) {
-                container.innerHTML = `<div class="bg-red-50 text-red-500 p-4 rounded-xl text-xs">${err.message}</div>`;
+                container.innerHTML = `
+                    <div class="bg-rose-50 border border-rose-100 p-6 rounded-3xl text-center">
+                        <p class="text-rose-600 text-xs font-black uppercase mb-2">Terjadi Kesalahan</p>
+                        <p class="text-rose-400 text-[10px] font-medium leading-relaxed mb-4">${err.message}</p>
+                        <button onclick="fetchNotes()" class="bg-rose-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase">Coba Lagi</button>
+                    </div>`;
             }
         }
 
@@ -165,30 +171,21 @@
             const date = document.getElementById('input-date').value;
             const content = document.getElementById('input-content').value;
 
-            if (!content || !date) return alert("Mohon isi tanggal dan konten!");
+            if (!content || !date) return alert("Isi tanggal dan catatan dulu ya!");
 
             btn.disabled = true;
-            btn.innerText = "Menyimpan...";
+            btn.innerText = "SEDANG MENYIMPAN...";
 
             try {
-                const res = await fetch('/api/notes', {
+                await apiFetch('/api/notes', {
                     method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'x-access-code': localStorage.getItem('accessCode')
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ id, name, date, content })
                 });
-
-                const result = await handleResponse(res);
-                if (res.ok) {
-                    resetForm();
-                    fetchNotes();
-                } else {
-                    alert(result.error);
-                }
+                resetForm();
+                fetchNotes();
             } catch (err) {
-                alert("Gagal menyimpan: " + err.message);
+                alert("GAGAL SIMPAN:\n" + err.message);
             } finally {
                 btn.disabled = false;
                 btn.innerText = "Simpan Catatan";
@@ -196,13 +193,9 @@
         }
 
         async function deleteNote(id) {
-            if (!confirm("Hapus catatan ini selamanya?")) return;
+            if (!confirm("Hapus catatan ini?")) return;
             try {
-                const res = await fetch(`/api/notes?id=${id}`, {
-                    method: 'DELETE',
-                    headers: { 'x-access-code': localStorage.getItem('accessCode') }
-                });
-                await handleResponse(res);
+                await apiFetch(`/api/notes?id=${id}`, { method: 'DELETE' });
                 fetchNotes();
             } catch (err) {
                 alert(err.message);
@@ -214,7 +207,7 @@
             document.getElementById('input-name').value = name;
             document.getElementById('input-date').value = date;
             document.getElementById('input-content').value = content;
-            document.getElementById('btn-save').innerText = "Perbarui Catatan";
+            document.getElementById('btn-save').innerText = "PERBARUI CATATAN";
             document.getElementById('btn-cancel').classList.remove('hidden');
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
