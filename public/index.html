@@ -3,87 +3,113 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0">
-    <title>Notes Fuad & Eli ✨</title>
+    <title>Memory Lane ✨</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        body { background-color: #f8fafc; font-family: -apple-system, system-ui, sans-serif; }
-        .hidden-app { display: none; }
-        .note-card { transition: all 0.2s ease; }
-        .note-card:active { transform: scale(0.98); }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #ffffff; }
+        .hidden-view { display: none; }
+        .glass-nav { background: rgba(255, 255, 255, 0.8); backdrop-filter: blur(10px); }
+        .note-content { line-height: 1.4; letter-spacing: -0.01em; }
     </style>
 </head>
-<body class="antialiased text-slate-800">
+<body class="antialiased text-slate-900">
 
-    <div id="login-screen" class="min-h-screen flex items-center justify-center p-6">
-        <div class="max-w-md w-full bg-white p-8 rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 text-center">
-            <div class="mb-6">
-                <div class="bg-indigo-50 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <span class="text-3xl">🔐</span>
-                </div>
-                <h2 class="text-2xl font-bold">Akses Kode</h2>
-                <p class="text-slate-500 text-sm mt-1">Masukkan kode rahasia untuk masuk</p>
-            </div>
-            <input type="password" id="access-input" 
-                class="w-full border-2 border-slate-100 p-4 rounded-2xl mb-4 text-center focus:border-indigo-500 outline-none transition-all text-lg font-bold tracking-widest" 
-                placeholder="••••••">
-            <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-4 rounded-2xl font-black shadow-lg shadow-indigo-200 active:scale-95 transition-all">
-                MASUK
-            </button>
+    <div id="login-screen" class="min-h-screen flex items-center justify-center p-8">
+        <div class="w-full max-w-sm text-center">
+            <h2 class="text-4xl font-black mb-2 italic">Hello.</h2>
+            <p class="text-slate-400 text-sm mb-8 font-medium">Masukkan kode untuk melihat kenangan.</p>
+            <input type="password" id="access-input" class="w-full bg-slate-100 p-5 rounded-2xl mb-4 text-center text-xl font-bold focus:ring-2 focus:ring-slate-900 outline-none transition-all" placeholder="••••••">
+            <button onclick="login()" class="w-full bg-slate-900 text-white py-5 rounded-2xl font-black active:scale-95 transition-all">MASUK</button>
         </div>
     </div>
 
-    <div id="app" class="max-w-xl mx-auto hidden-app p-4 pb-12">
-        <header class="flex justify-between items-center py-8">
-            <div>
-                <h1 class="text-2xl font-black tracking-tight text-slate-900">CATATAN KITA 📝</h1>
-                <p class="text-[10px] font-bold text-slate-400 uppercase tracking-[0.2em]">Fuad & Eli • Private Space</p>
-            </div>
-            <button onclick="logout()" class="text-xs font-bold text-slate-400 hover:text-red-500 transition-colors">KELUAR</button>
-        </header>
-
-        <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 mb-8">
-            <input type="hidden" id="note-id">
-            <div class="grid grid-cols-2 gap-4 mb-4">
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Siapa?</label>
-                    <select id="input-name" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
-                        <option value="Fuad">Fuad</option>
-                        <option value="Eli">Eli</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Kapan?</label>
-                    <input type="date" id="input-date" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-bold focus:ring-2 focus:ring-indigo-500 outline-none">
-                </div>
-            </div>
-            <div class="mb-5">
-                <label class="block text-[10px] font-black text-slate-400 uppercase mb-2 ml-1">Apa peristiwanya?</label>
-                <textarea id="input-content" rows="4" class="w-full bg-slate-50 border-none p-4 rounded-2xl text-sm font-medium focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Tulis sesuatu yang penting..."></textarea>
-            </div>
-            <button onclick="saveNote()" id="btn-save" class="w-full bg-slate-900 text-white py-4 rounded-2xl font-bold shadow-lg active:scale-95 transition-all">
-                Simpan Catatan
-            </button>
-            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-3 text-xs font-bold text-slate-400">BATALKAN EDIT</button>
-        </div>
-
-        <div class="flex items-center justify-between mb-6 px-1">
-            <h3 class="font-black text-slate-800 text-sm uppercase tracking-wider">Riwayat Catatan</h3>
-            <span id="note-count" class="text-[10px] bg-slate-200 px-3 py-1 rounded-full text-slate-600 font-black">0/50</span>
-        </div>
+    <div id="app" class="hidden-view">
         
-        <div id="notes-container" class="space-y-4">
+        <nav class="fixed top-0 left-0 right-0 glass-nav z-50 border-b border-slate-50">
+            <div class="max-w-xl mx-auto px-6 h-20 flex justify-between items-center">
+                <div>
+                    <h1 class="text-xl font-black tracking-tighter">OUR NOTES.</h1>
+                </div>
+                <div class="flex items-center gap-4">
+                    <button onclick="showView('form')" class="w-12 h-12 bg-slate-900 text-white rounded-full flex items-center justify-center shadow-lg active:scale-90 transition-all">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                    </button>
+                    <button onclick="logout()" class="text-[10px] font-black text-slate-300 uppercase">Exit</button>
+                </div>
             </div>
+        </nav>
+
+        <div id="view-list" class="max-w-xl mx-auto px-6 pt-28 pb-10">
+            <div id="notes-container" class="space-y-12">
+                </div>
+        </div>
+
+        <div id="view-form" class="hidden-view fixed inset-0 bg-white z-[60] overflow-y-auto">
+            <div class="max-w-xl mx-auto px-6 py-10">
+                <div class="flex justify-between items-center mb-10">
+                    <button onclick="showView('list')" class="text-slate-900 font-bold flex items-center gap-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clip-rule="evenodd" />
+                        </svg>
+                        Kembali
+                    </button>
+                    <h2 id="form-title" class="text-sm font-black uppercase tracking-widest text-slate-400">Tambah Catatan</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <input type="hidden" id="note-id">
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="bg-slate-50 p-4 rounded-3xl">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Penulis</label>
+                            <select id="input-name" class="w-full bg-transparent font-bold text-lg outline-none">
+                                <option value="Fuad">Fuad</option>
+                                <option value="Eli">Eli</option>
+                            </select>
+                        </div>
+                        <div class="bg-slate-50 p-4 rounded-3xl">
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Tanggal</label>
+                            <input type="date" id="input-date" class="w-full bg-transparent font-bold text-lg outline-none">
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-6 rounded-[2rem]">
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Isi Kenangan / Peristiwa</label>
+                        <textarea id="input-content" rows="8" class="w-full bg-transparent text-xl font-medium outline-none leading-relaxed" placeholder="Tulis sesuatu..."></textarea>
+                    </div>
+
+                    <button onclick="saveNote()" id="btn-save" class="w-full bg-slate-900 text-white py-6 rounded-[2rem] font-black shadow-xl active:scale-95 transition-all">
+                        SIMPAN SEKARANG
+                    </button>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // Set tanggal hari ini otomatis
+        // Inisialisasi Tanggal
         document.getElementById('input-date').valueAsDate = new Date();
 
         window.onload = () => {
             if (localStorage.getItem('accessCode')) showApp();
         };
 
-        // Fungsi pembantu untuk menangani response API agar tidak muncul "Unexpected Token A"
+        // Switch Antar Halaman (SPA)
+        function showView(viewName) {
+            if (viewName === 'list') {
+                document.getElementById('view-list').classList.remove('hidden-view');
+                document.getElementById('view-form').classList.add('hidden-view');
+                fetchNotes();
+            } else {
+                document.getElementById('view-list').classList.add('hidden-view');
+                document.getElementById('view-form').classList.remove('hidden-view');
+            }
+        }
+
         async function apiFetch(url, options = {}) {
             const res = await fetch(url, {
                 ...options,
@@ -92,16 +118,9 @@
                     'x-access-code': localStorage.getItem('accessCode') 
                 }
             });
-
-            const contentType = res.headers.get("content-type");
-            if (contentType && contentType.includes("application/json")) {
-                const data = await res.json();
-                if (!res.ok) throw new Error(data.details || data.error || "Gagal melakukan aksi");
-                return data;
-            } else {
-                const text = await res.text();
-                throw new Error("Server Crash (Bukan JSON): " + text.substring(0, 100));
-            }
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.details || data.error);
+            return data;
         }
 
         function login() {
@@ -116,51 +135,42 @@
             location.reload();
         }
 
-        async function showApp() {
+        function showApp() {
             document.getElementById('login-screen').classList.add('hidden');
-            document.getElementById('app').classList.remove('hidden-app');
-            fetchNotes();
+            document.getElementById('app').classList.remove('hidden-view');
+            showView('list');
         }
 
         async function fetchNotes() {
             const container = document.getElementById('notes-container');
-            container.innerHTML = '<div class="text-center py-10 text-slate-400 text-xs font-bold animate-pulse">MEMUAT DATA...</div>';
-
             try {
                 const notes = await apiFetch('/api/notes');
                 
-                // Pastikan notes adalah array sebelum di-map
-                if (!Array.isArray(notes)) throw new Error("Format data salah (Bukan Array)");
-
-                document.getElementById('note-count').innerText = `${notes.length}/50`;
-                
                 if (notes.length === 0) {
-                    container.innerHTML = `<div class="bg-white p-12 rounded-3xl text-center text-slate-300 border-2 border-dashed border-slate-100 font-bold text-sm">Belum ada kenangan tersimpan.</div>`;
+                    container.innerHTML = `<div class="py-20 text-center text-slate-300 font-bold italic">Belum ada catatan yang terukir.</div>`;
                     return;
                 }
 
                 container.innerHTML = notes.map(n => `
-                    <div class="note-card bg-white p-6 rounded-3xl shadow-sm border border-slate-100 relative">
-                        <div class="flex justify-between items-start mb-4">
-                            <div>
-                                <span class="text-[9px] font-black uppercase px-2 py-1 rounded-lg ${n.name === 'Fuad' ? 'bg-blue-50 text-blue-600' : 'bg-rose-50 text-rose-600'}">${n.name}</span>
-                                <h4 class="text-[10px] text-slate-400 font-black mt-2 tracking-tighter italic uppercase">${n.event_date}</h4>
-                            </div>
-                            <div class="flex gap-4">
-                                <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\` )" class="text-indigo-500 text-[10px] font-black uppercase tracking-widest">Edit</button>
-                                <button onclick="deleteNote(${n.id})" class="text-slate-300 hover:text-red-500 text-[10px] font-black uppercase tracking-widest transition-colors">Hapus</button>
-                            </div>
+                    <div class="relative group">
+                        <div class="text-[11px] font-black text-slate-300 uppercase tracking-[0.3em] mb-3 flex items-center gap-3">
+                            ${n.event_date}
+                            <span class="h-[1px] flex-1 bg-slate-50"></span>
+                            <span class="${n.name === 'Fuad' ? 'text-blue-400' : 'text-rose-400'}">${n.name}</span>
                         </div>
-                        <p class="text-slate-700 text-sm leading-relaxed font-medium whitespace-pre-wrap">${n.content}</p>
+                        
+                        <h2 class="note-content text-3xl font-extrabold text-slate-900 mb-4 pr-10">
+                            ${n.content}
+                        </h2>
+
+                        <div class="flex gap-4 mt-2">
+                            <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', \`${n.content.replace(/`/g, "\\`")}\` )" class="text-[10px] font-black uppercase text-slate-400 hover:text-indigo-600 transition-colors">Edit</button>
+                            <button onclick="deleteNote(${n.id})" class="text-[10px] font-black uppercase text-slate-400 hover:text-red-500 transition-colors">Hapus</button>
+                        </div>
                     </div>
                 `).join('');
             } catch (err) {
-                container.innerHTML = `
-                    <div class="bg-rose-50 border border-rose-100 p-6 rounded-3xl text-center">
-                        <p class="text-rose-600 text-xs font-black uppercase mb-2">Terjadi Kesalahan</p>
-                        <p class="text-rose-400 text-[10px] font-medium leading-relaxed mb-4">${err.message}</p>
-                        <button onclick="fetchNotes()" class="bg-rose-600 text-white text-[10px] font-black px-6 py-2 rounded-full uppercase">Coba Lagi</button>
-                    </div>`;
+                container.innerHTML = `<div class="text-red-500 text-xs p-4 bg-red-50 rounded-2xl">${err.message}</div>`;
             }
         }
 
@@ -171,10 +181,10 @@
             const date = document.getElementById('input-date').value;
             const content = document.getElementById('input-content').value;
 
-            if (!content || !date) return alert("Isi tanggal dan catatan dulu ya!");
+            if (!content || !date) return alert("Lengkapi data kenangannya!");
 
             btn.disabled = true;
-            btn.innerText = "SEDANG MENYIMPAN...";
+            btn.innerText = "MENYIMPAN...";
 
             try {
                 await apiFetch('/api/notes', {
@@ -183,17 +193,17 @@
                     body: JSON.stringify({ id, name, date, content })
                 });
                 resetForm();
-                fetchNotes();
+                showView('list');
             } catch (err) {
-                alert("GAGAL SIMPAN:\n" + err.message);
+                alert("Gagal menyimpan: " + err.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = "Simpan Catatan";
+                btn.innerText = "SIMPAN SEKARANG";
             }
         }
 
         async function deleteNote(id) {
-            if (!confirm("Hapus catatan ini?")) return;
+            if (!confirm("Hapus kenangan ini?")) return;
             try {
                 await apiFetch(`/api/notes?id=${id}`, { method: 'DELETE' });
                 fetchNotes();
@@ -207,17 +217,15 @@
             document.getElementById('input-name').value = name;
             document.getElementById('input-date').value = date;
             document.getElementById('input-content').value = content;
-            document.getElementById('btn-save').innerText = "PERBARUI CATATAN";
-            document.getElementById('btn-cancel').classList.remove('hidden');
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.getElementById('form-title').innerText = "Edit Catatan";
+            showView('form');
         }
 
         function resetForm() {
             document.getElementById('note-id').value = '';
             document.getElementById('input-content').value = '';
             document.getElementById('input-date').valueAsDate = new Date();
-            document.getElementById('btn-save').innerText = "Simpan Catatan";
-            document.getElementById('btn-cancel').classList.add('hidden');
+            document.getElementById('form-title').innerText = "Tambah Catatan";
         }
     </script>
 </body>
