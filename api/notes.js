@@ -38,21 +38,38 @@ export default async function handler(req, res) {
       }
     }
 
-    // 4. LOGIKA SIMPAN (POST)
+    // LOGIKA SIMPAN (POST)
     if (req.method === 'POST') {
-      const { id, name, date, content } = req.body;
-      if (id) {
-        await client.execute({
-          sql: "UPDATE notes SET name = ?, event_date = ?, content = ? WHERE id = ?",
-          args: [name, date, content, id]
-        });
-        return res.status(200).json({ message: 'Update berhasil' });
-      } else {
-        await client.execute({
-          sql: "INSERT INTO notes (name, event_date, content) VALUES (?, ?, ?)",
-          args: [name, date, content]
-        });
-        return res.status(201).json({ message: 'Simpan berhasil' });
+      try {
+        const { id, name, date, content } = req.body;
+
+        // Cek apakah data sampai ke server
+        if (!name || !date || !content) {
+          return res.status(400).json({ error: "Data tidak lengkap!", details: "Nama, Tanggal, atau Konten kosong." });
+        }
+
+        if (id) {
+          // Update
+          await client.execute({
+            sql: "UPDATE notes SET name = ?, event_date = ?, content = ? WHERE id = ?",
+            args: [name, date, content, id]
+          });
+          return res.status(200).json({ message: 'Update berhasil' });
+        } else {
+          // Cek Limit
+          const countRes = await client.execute("SELECT COUNT(*) as total FROM notes");
+          if (countRes.rows[0].total >= 50) {
+            return res.status(400).json({ error: "Limit tercapai", details: "Sudah ada 50 catatan." });
+          }
+          // Simpan Baru
+          await client.execute({
+            sql: "INSERT INTO notes (name, event_date, content) VALUES (?, ?, ?)",
+            args: [name, date, content]
+          });
+          return res.status(201).json({ message: 'Simpan berhasil' });
+        }
+      } catch (postError) {
+        return res.status(500).json({ error: "Gagal Simpan ke Database", details: postError.message });
       }
     }
 
