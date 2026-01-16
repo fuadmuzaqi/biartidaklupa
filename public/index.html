@@ -27,8 +27,7 @@
     <div id="login-screen" class="min-h-screen flex items-center justify-center p-8 bg-slate-50">
         <div class="w-full max-w-sm text-center bg-white p-10 rounded-[2.5rem] shadow-xl shadow-slate-200/50">
             <h2 class="text-4xl font-black mb-2 tracking-tighter">Login.</h2>
-            <p class="text-slate-400 text-xs mb-8 font-bold uppercase tracking-widest">Akses Khusus Fuad & Eli</p>
-            <input type="password" id="access-input" class="w-full bg-slate-100 p-5 rounded-2xl mb-4 text-center text-xl font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all" placeholder="••••••">
+                        <input type="password" id="access-input" class="w-full bg-slate-100 p-5 rounded-2xl mb-4 text-center text-xl font-bold focus:ring-2 focus:ring-blue-600 outline-none transition-all" placeholder="••••••">
             <button onclick="login()" class="w-full bg-blue-600 text-white py-5 rounded-2xl font-black active:scale-95 transition-all shadow-lg shadow-blue-200">MASUK</button>
         </div>
     </div>
@@ -75,25 +74,25 @@
                     
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Siapa?</label>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Nama</label>
                             <select id="input-name" class="w-full bg-transparent font-bold text-lg outline-none appearance-none">
                                 <option value="Fuad">Fuad</option>
                                 <option value="Eli">Eli</option>
                             </select>
                         </div>
                         <div class="bg-slate-50 p-5 rounded-[1.5rem] border border-slate-100">
-                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Kapan?</label>
+                            <label class="block text-[10px] font-black text-slate-400 uppercase mb-2">Waktu</label>
                             <input type="date" id="input-date" class="w-full bg-transparent font-bold text-lg outline-none">
                         </div>
                     </div>
 
                     <div class="bg-slate-50 p-8 rounded-[2.5rem] border border-slate-100">
-                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Detail Peristiwa</label>
-                        <textarea id="input-content" rows="10" class="w-full bg-transparent text-xl font-semibold outline-none leading-relaxed placeholder:text-slate-300" placeholder="Apa yang terjadi hari ini?"></textarea>
+                        <label class="block text-[10px] font-black text-slate-400 uppercase mb-4">Isi Catatan</label>
+                        <textarea id="input-content" rows="10" class="w-full bg-transparent text-xl font-semibold outline-none leading-relaxed placeholder:text-slate-300" placeholder="Tulis isi catatan anda"></textarea>
                     </div>
 
                     <button onclick="saveNote()" id="btn-save" class="w-full bg-blue-600 text-white py-6 rounded-[2rem] font-black shadow-xl shadow-blue-100 active:scale-95 transition-all uppercase tracking-widest text-sm">
-                        Simpan Peristiwa
+                        Simpan
                     </button>
                 </div>
             </div>
