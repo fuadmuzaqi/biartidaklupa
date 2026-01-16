@@ -23,11 +23,16 @@ export default async function handler(req, res) {
     }
 
     // 4. Logika GET
-    if (req.method === 'GET') {
-      const result = await client.execute("SELECT * FROM notes ORDER BY event_date DESC");
-      return res.status(200).json(result.rows);
+   if (req.method === 'GET') {
+      try {
+        const result = await client.execute("SELECT * FROM notes ORDER BY event_date DESC");
+        // Pastikan mengembalikan result.rows (ini adalah array)
+        return res.status(200).json(result.rows || []);
+      } catch (dbError) {
+        console.error("Query Error:", dbError);
+        return res.status(500).json({ error: "Gagal query data: " + dbError.message });
+      }
     }
-
     // 5. Logika POST
     if (req.method === 'POST') {
       const { id, name, date, content } = req.body;
