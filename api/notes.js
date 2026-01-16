@@ -22,8 +22,8 @@ export default async function handler(req, res) {
       return res.status(200).json(result.rows);
     }
     // ... (sisa kode POST dan DELETE sama seperti sebelumnya)
-  } catch (error) {
+ } catch (error) {
     console.error("Database Error:", error);
-    return res.status(500).json({ error: 'Gagal terhubung ke Database Turso' });
+    // Ubah baris di bawah ini untuk melihat error aslinya di layar
+    return res.status(500).json({ error: 'Detail Error: ' + error.message });
   }
-}
