@@ -1,289 +1,151 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>Catatan Peristiwa Penting</title>
-  <style>
-    :root { --bg:#0b1020; --card:#111a33; --text:#e8eeff; --muted:#a7b3dd; --accent:#6aa6ff; --danger:#ff5d6c; --ok:#45d483; }
-    * { box-sizing: border-box; }
-    body { margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial; background: linear-gradient(180deg,#070a15, var(--bg)); color: var(--text); }
-    .wrap { max-width: 920px; margin: 0 auto; padding: 18px; }
-    header { display:flex; gap:12px; align-items:center; justify-content:space-between; flex-wrap:wrap; }
-    h1 { font-size: 18px; margin: 8px 0; }
-    .card { background: rgba(17,26,51,.92); border: 1px solid rgba(255,255,255,.08); border-radius: 14px; padding: 14px; }
-    .grid { display:grid; gap: 12px; }
-    @media (min-width: 720px){ .grid-2 { grid-template-columns: 1fr 1fr; } }
-    label { display:block; font-size: 12px; color: var(--muted); margin-bottom:6px; }
-    input, select, textarea {
-      width:100%; padding: 10px 11px; border-radius: 12px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(8,12,26,.85); color: var(--text);
-      outline: none;
-    }
-    textarea { min-height: 110px; resize: vertical; }
-    .row { display:flex; gap: 10px; flex-wrap:wrap; align-items:center; }
-    button {
-      appearance:none; border:0; cursor:pointer;
-      padding: 10px 12px; border-radius: 12px;
-      background: var(--accent); color: #071022; font-weight: 700;
-    }
-    button.secondary { background: rgba(255,255,255,.10); color: var(--text); font-weight:600; border:1px solid rgba(255,255,255,.12); }
-    button.danger { background: var(--danger); color: #20050a; }
-    .hint { color: var(--muted); font-size: 12px; }
-    .list { display:grid; gap: 10px; margin-top: 12px; }
-    .item { padding: 12px; border-radius: 14px; background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08); }
-    .item-top { display:flex; justify-content:space-between; gap: 10px; align-items:flex-start; }
-    .meta { font-size: 12px; color: var(--muted); }
-    .content { white-space: pre-wrap; line-height: 1.35; margin-top: 8px; }
-    .badge { font-size: 12px; padding: 3px 8px; border-radius: 999px; border:1px solid rgba(255,255,255,.14); background: rgba(255,255,255,.08); color: var(--text); }
-    .status { font-size: 12px; }
-    .status.ok { color: var(--ok); }
-    .status.err { color: var(--danger); }
-    .hidden { display:none !important; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes Penting ✨</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #f3f4f6; }
+        .hidden-app { display: none; }
+    </style>
 </head>
-<body>
-  <div class="wrap">
-    <header>
-      <h1>Catatan Peristiwa Penting (Fuad/Eli)</h1>
-      <div class="row">
-        <span id="count" class="badge">0/50</span>
-        <button id="logoutBtn" class="secondary hidden" type="button">Keluar</button>
-      </div>
-    </header>
+<body class="p-4 md:p-8">
+    <div id="login-screen" class="max-w-md mx-auto mt-20 bg-white p-6 rounded-xl shadow-md">
+        <h2 class="text-xl font-bold mb-4 text-center">🔐 Masukkan Kode Akses</h2>
+        <input type="password" id="access-input" class="w-full border p-2 rounded mb-4 text-center" placeholder="Kode Rahasia">
+        <button onclick="login()" class="w-full bg-blue-600 text-white py-2 rounded font-bold">Masuk</button>
+    </div>
 
-    <section id="loginCard" class="card grid">
-      <div>
-        <label>Kode akses</label>
-        <input id="accessCode" placeholder="Masukkan kode akses" autocomplete="off" />
-        <div class="hint">Kode dicek di server (env ACCESS_CODE).</div>
-      </div>
-      <div class="row">
-        <button id="loginBtn" type="button">Masuk</button>
-        <span id="loginStatus" class="status"></span>
-      </div>
-    </section>
+    <div id="app" class="max-w-2xl mx-auto hidden-app">
+        <header class="flex justify-between items-center mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Note Fuad & Eli 📝</h1>
+            <button onclick="logout()" class="text-sm text-red-500 underline">Keluar</button>
+        </header>
 
-    <section id="app" class="grid hidden" style="margin-top: 12px;">
-      <div class="card grid grid-2">
-        <div>
-          <label>Pilih nama</label>
-          <select id="person">
-            <option value="Fuad">Fuad</option>
-            <option value="Eli">Eli</option>
-          </select>
-        </div>
-        <div>
-          <label>Tanggal</label>
-          <input id="date" type="date" />
-        </div>
-        <div style="grid-column:1/-1;">
-          <label>Isi catatan</label>
-          <textarea id="content" placeholder="Tulis peristiwa penting..."></textarea>
-        </div>
-        <div class="row" style="grid-column:1/-1;">
-          <button id="saveBtn" type="button">Simpan</button>
-          <button id="cancelEditBtn" class="secondary hidden" type="button">Batal edit</button>
-          <span id="saveStatus" class="status"></span>
-        </div>
-        <div class="hint" style="grid-column:1/-1;">
-          Tips: klik "Edit" di item untuk mengubah. Maksimal 50 note.
-        </div>
-      </div>
-
-      <div class="card">
-        <div class="row" style="justify-content: space-between;">
-          <div class="hint">Daftar catatan (terbaru di atas)</div>
-          <button id="refreshBtn" class="secondary" type="button">Refresh</button>
-        </div>
-        <div id="list" class="list"></div>
-      </div>
-    </section>
-  </div>
-
-  <script>
-    const $ = (id) => document.getElementById(id);
-
-    let editingId = null;
-    let sessionToken = localStorage.getItem("sessionToken") || "";
-
-    function setStatus(el, text, kind) {
-      el.textContent = text || "";
-      el.classList.remove("ok", "err");
-      if (kind) el.classList.add(kind);
-    }
-
-    function showApp(isAuthed) {
-      $("loginCard").classList.toggle("hidden", isAuthed);
-      $("app").classList.toggle("hidden", !isAuthed);
-      $("logoutBtn").classList.toggle("hidden", !isAuthed);
-    }
-
-    async function api(path, opts = {}) {
-      const headers = Object.assign({ "Content-Type": "application/json" }, opts.headers || {});
-      if (sessionToken) headers["Authorization"] = "Bearer " + sessionToken;
-      const res = await fetch(path, Object.assign({}, opts, { headers }));
-      const ct = res.headers.get("content-type") || "";
-      const data = ct.includes("application/json") ? await res.json() : await res.text();
-      if (!res.ok) {
-        const msg = (data && data.error) ? data.error : ("HTTP " + res.status);
-        throw new Error(msg);
-      }
-      return data;
-    }
-
-    function escapeHtml(s) {
-      return (s || "").replace(/[&<>"']/g, (m) => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;" }[m]));
-    }
-
-    function renderList(items) {
-      $("count").textContent = (items.length || 0) + "/50";
-      const wrap = $("list");
-      wrap.innerHTML = "";
-      if (!items.length) {
-        wrap.innerHTML = '<div class="hint">Belum ada catatan.</div>';
-        return;
-      }
-      for (const it of items) {
-        const el = document.createElement("div");
-        el.className = "item";
-        el.innerHTML = `
-          <div class="item-top">
-            <div>
-              <div><span class="badge">${escapeHtml(it.person)}</span></div>
-              <div class="meta">${escapeHtml(it.date)} • ${new Date(it.updatedAt).toLocaleString()}</div>
+        <div class="bg-white p-6 rounded-xl shadow-sm mb-8">
+            <input type="hidden" id="note-id">
+            <div class="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                    <label class="block text-sm font-medium mb-1">Nama</label>
+                    <select id="input-name" class="w-full border p-2 rounded">
+                        <option value="Fuad">Fuad</option>
+                        <option value="Eli">Eli</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium mb-1">Tanggal</label>
+                    <input type="date" id="input-date" class="w-full border p-2 rounded">
+                </div>
             </div>
-            <div class="row">
-              <button class="secondary" data-edit="${it.id}">Edit</button>
-              <button class="danger" data-del="${it.id}">Hapus</button>
+            <div class="mb-4">
+                <label class="block text-sm font-medium mb-1">Isi Note</label>
+                <textarea id="input-content" rows="3" class="w-full border p-2 rounded" placeholder="Tulis peristiwa penting..."></textarea>
             </div>
-          </div>
-          <div class="content">${escapeHtml(it.content)}</div>
-        `;
-        wrap.appendChild(el);
-      }
+            <button onclick="saveNote()" id="btn-save" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold shadow-lg active:scale-95 transition">Simpan Note</button>
+            <button onclick="resetForm()" id="btn-cancel" class="hidden w-full mt-2 text-gray-500 text-sm">Batal Edit</button>
+        </div>
 
-      wrap.querySelectorAll("[data-edit]").forEach(btn => {
-        btn.addEventListener("click", () => {
-          const id = btn.getAttribute("data-edit");
-          const item = items.find(x => String(x.id) === String(id));
-          if (!item) return;
+        <div id="notes-container" class="space-y-4">
+            </div>
+    </div>
 
-          editingId = item.id;
-          $("person").value = item.person;
-          $("date").value = item.date;
-          $("content").value = item.content;
-          $("cancelEditBtn").classList.remove("hidden");
-          $("saveBtn").textContent = "Simpan perubahan";
-          window.scrollTo({ top: 0, behavior: "smooth" });
-        });
-      });
+    <script>
+        let accessCode = localStorage.getItem('accessCode');
+        if(accessCode) showApp();
 
-      wrap.querySelectorAll("[data-del]").forEach(btn => {
-        btn.addEventListener("click", async () => {
-          const id = btn.getAttribute("data-del");
-          if (!confirm("Hapus catatan ini?")) return;
-          setStatus($("saveStatus"), "Menghapus...", null);
-          try {
-            await api("/api/notes?id=" + encodeURIComponent(id), { method: "DELETE" });
-            setStatus($("saveStatus"), "Terhapus.", "ok");
-            await loadNotes();
-          } catch (e) {
-            setStatus($("saveStatus"), e.message, "err");
-          }
-        });
-      });
-    }
-
-    function resetForm() {
-      editingId = null;
-      $("person").value = "Fuad";
-      $("date").value = "";
-      $("content").value = "";
-      $("cancelEditBtn").classList.add("hidden");
-      $("saveBtn").textContent = "Simpan";
-    }
-
-    async function loadNotes() {
-      setStatus($("saveStatus"), "Memuat...", null);
-      try {
-        const data = await api("/api/notes", { method: "GET" });
-        renderList(data.items || []);
-        setStatus($("saveStatus"), "", null);
-      } catch (e) {
-        setStatus($("saveStatus"), e.message, "err");
-        renderList([]);
-      }
-    }
-
-    $("loginBtn").addEventListener("click", async () => {
-      setStatus($("loginStatus"), "Memeriksa...", null);
-      try {
-        const code = $("accessCode").value.trim();
-        const data = await api("/api/notes/auth", { method: "POST", body: JSON.stringify({ code }) });
-        sessionToken = data.token;
-        localStorage.setItem("sessionToken", sessionToken);
-        showApp(true);
-        setStatus($("loginStatus"), "", null);
-        await loadNotes();
-      } catch (e) {
-        setStatus($("loginStatus"), e.message, "err");
-      }
-    });
-
-    $("logoutBtn").addEventListener("click", () => {
-      sessionToken = "";
-      localStorage.removeItem("sessionToken");
-      resetForm();
-      showApp(false);
-    });
-
-    $("saveBtn").addEventListener("click", async () => {
-      setStatus($("saveStatus"), "Menyimpan...", null);
-      try {
-        const person = $("person").value;
-        const date = $("date").value;
-        const content = $("content").value.trim();
-
-        if (!date) throw new Error("Tanggal wajib diisi.");
-        if (!content) throw new Error("Isi catatan tidak boleh kosong.");
-        if (content.length > 2000) throw new Error("Isi catatan maksimal 2000 karakter.");
-
-        if (editingId) {
-          await api("/api/notes", {
-            method: "PUT",
-            body: JSON.stringify({ id: editingId, person, date, content })
-          });
-          setStatus($("saveStatus"), "Tersimpan (updated).", "ok");
-        } else {
-          await api("/api/notes", {
-            method: "POST",
-            body: JSON.stringify({ person, date, content })
-          });
-          setStatus($("saveStatus"), "Tersimpan.", "ok");
+        function login() {
+            const code = document.getElementById('access-input').value;
+            localStorage.setItem('accessCode', code);
+            location.reload();
         }
 
-        resetForm();
-        await loadNotes();
-      } catch (e) {
-        setStatus($("saveStatus"), e.message, "err");
-      }
-    });
+        function logout() {
+            localStorage.removeItem('accessCode');
+            location.reload();
+        }
 
-    $("cancelEditBtn").addEventListener("click", () => {
-      resetForm();
-      setStatus($("saveStatus"), "Batal edit.", null);
-    });
+        function showApp() {
+            document.getElementById('login-screen').classList.add('hidden');
+            document.getElementById('app').classList.remove('hidden-app');
+            fetchNotes();
+        }
 
-    $("refreshBtn").addEventListener("click", loadNotes);
+        async function fetchNotes() {
+            const res = await fetch('/api/notes', {
+                headers: { 'x-access-code': localStorage.getItem('accessCode') }
+            });
+            if (res.status === 401) return logout();
+            const notes = await res.json();
+            
+            const container = document.getElementById('notes-container');
+            container.innerHTML = notes.map(n => `
+                <div class="bg-white p-4 rounded-lg shadow-sm border-l-4 ${n.name === 'Fuad' ? 'border-blue-500' : 'border-pink-500'}">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <span class="text-xs font-bold uppercase ${n.name === 'Fuad' ? 'text-blue-600' : 'text-pink-600'}">${n.name}</span>
+                            <p class="text-xs text-gray-400">${n.event_date}</p>
+                        </div>
+                        <div class="space-x-2">
+                            <button onclick="editNote(${n.id}, '${n.name}', '${n.event_date}', '${n.content.replace(/'/g, "\\'")}')" class="text-xs text-blue-500">Edit</button>
+                            <button onclick="deleteNote(${n.id})" class="text-xs text-red-500">Hapus</button>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-gray-700 whitespace-pre-wrap">${n.content}</p>
+                </div>
+            `).join('');
+        }
 
-    // auto-login jika ada token tersimpan
-    (async () => {
-      if (!sessionToken) { showApp(false); return; }
-      showApp(true);
-      await loadNotes();
-    })();
-  </script>
+        async function saveNote() {
+            const id = document.getElementById('note-id').value;
+            const name = document.getElementById('input-name').value;
+            const date = document.getElementById('input-date').value;
+            const content = document.getElementById('input-content').value;
+
+            if(!date || !content) return alert('Isi semua field!');
+
+            const res = await fetch('/api/notes', {
+                method: 'POST',
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'x-access-code': localStorage.getItem('accessCode')
+                },
+                body: JSON.stringify({ id, name, date, content })
+            });
+
+            const data = await res.json();
+            if(res.ok) {
+                resetForm();
+                fetchNotes();
+            } else {
+                alert(data.error);
+            }
+        }
+
+        async function deleteNote(id) {
+            if(!confirm('Hapus note ini?')) return;
+            await fetch(\`/api/notes?id=\${id}\`, {
+                method: 'DELETE',
+                headers: { 'x-access-code': localStorage.getItem('accessCode') }
+            });
+            fetchNotes();
+        }
+
+        function editNote(id, name, date, content) {
+            document.getElementById('note-id').value = id;
+            document.getElementById('input-name').value = name;
+            document.getElementById('input-date').value = date;
+            document.getElementById('input-content').value = content;
+            document.getElementById('btn-save').innerText = 'Perbarui Note';
+            document.getElementById('btn-cancel').classList.remove('hidden');
+        }
+
+        function resetForm() {
+            document.getElementById('note-id').value = '';
+            document.getElementById('input-content').value = '';
+            document.getElementById('btn-save').innerText = 'Simpan Note';
+            document.getElementById('btn-cancel').classList.add('hidden');
+        }
+    </script>
 </body>
 </html>
