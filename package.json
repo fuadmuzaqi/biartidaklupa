@@ -1,6 +1,7 @@
 {
   "name": "notes-fuad-eli",
   "version": "1.0.0",
+  "type": "module",
   "main": "api/notes.js",
   "dependencies": {
     "@libsql/client": "^0.6.0"
